@@ -1,0 +1,6 @@
+[submodule "Nitro/vendor/glm"]
+	path = Nitro/vendor/glm
+	url = https://github.com/g-truc/glm
+[submodule "Nitro/vendor/fmtlib"]
+	path = Nitro/vendor/fmtlib
+	url = https://github.com/fmtlib/fmt.git
