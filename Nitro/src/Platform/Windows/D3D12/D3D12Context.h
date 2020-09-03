@@ -2,6 +2,9 @@
 
 #include "Nitro/Render/IRenderingContext.h"
 
+#define DX_DATA_ALIGN_DEFAULT 16
+#define DX_ALIGN __declspec(align(DX_DATA_ALIGN_DEFAULT))
+
 namespace Nitro
 {
 	namespace Graphics
@@ -25,10 +28,6 @@ namespace Nitro
 				virtual void Init() override;
 				virtual void SwapBuffers() override;
 
-				// @ ----------------------------
-				// @		Eason's attempt
-				// @ ----------------------------
-				virtual void Clear() const override;
 			public:			
 			protected:
 				virtual void LogCtxSpecs() override;

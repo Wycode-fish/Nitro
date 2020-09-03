@@ -1,147 +1,170 @@
 #include "NtPCH.h"
 #include "ImGuiLayer.h"
 #include "imgui.h"
-
-#include "Platform/Independent/OpenGL/imgui_impl_opengl3.h"
+#ifdef NT_WINDOWED_APP
+// ** necessary Win32 & d3d12 dependencies are already in pch
+#include "examples/imgui_impl_win32.h"
+#include "examples/imgui_impl_dx12.h"
+#include "Platform/Windows/D3D12/D3D12Context.h"
+#include "Platform/Windows/D3D12/D3D12SwapChain.h"
+#include "Platform/Windows/D3D12/D3D12DescriptorHeap.h"
+#include "Platform/Windows/D3D12/D3D12CommandContext.h"
+#else
 #include <GLFW/glfw3.h>
+#include "examples/imgui_impl_glfw.h"
+#include "examples/imgui_impl_opengl3.h"
+#endif
 
 #include "Nitro/Application.h"
+
+// @ -------- For Debugging --------------
+#ifdef NT_WINDOWED_APP
+	#define NT_IMGUI_D3D12_READY 1
+#endif
+// @ -----------------------------------
 
 namespace Nitro
 {
 	namespace Framework
 	{
+#ifdef NT_WINDOWED_APP
+		Graphics::dx::D3D12DescriptorHeap_Static* ImGuiLayer::sm_ImGuiSRVHeap = nullptr;
+#endif
 		ImGuiLayer::ImGuiLayer()
 			: m_Now{0.0f}
 		{
 		}
-		void ImGuiLayer::OnUpdate()
-		{
-			ImGuiIO& io = ImGui::GetIO();
-			Base::Application& app = Application::GetInstanceAsRef();
-			io.DisplaySize = ImVec2(app.GetWindow().GetWidth(), app.GetWindow().GetHeight());
-
-			float time = (float)glfwGetTime();
-			io.DeltaTime = (m_Now == 0.0f) ? 1.0f / 60.0f : time - m_Now;
-			m_Now = time;
-
-			ImGui_ImplOpenGL3_NewFrame();
-			ImGui::NewFrame();
-
-			static bool showWindow = true;
-			ImGui::ShowDemoWindow(&showWindow);
-
-			ImGui::Render();
-			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-		}
 
 		void ImGuiLayer::OnAttach()
 		{
+			IMGUI_CHECKVERSION();
 			ImGui::CreateContext();
-			ImGui::StyleColorsLight();
+			ImGui::StyleColorsDark();
 
-			ImGuiIO& io = ImGui::GetIO();
-			io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
-			io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;
+			ImGuiIO& io = ImGui::GetIO(); (void)io;
+			io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+			io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
-			// Keyboard mapping. ImGui will use those indices to peek into the io.KeysDown[] array.
-			io.KeyMap[ImGuiKey_Tab] = GLFW_KEY_TAB;
-			io.KeyMap[ImGuiKey_LeftArrow] = GLFW_KEY_LEFT;
-			io.KeyMap[ImGuiKey_RightArrow] = GLFW_KEY_RIGHT;
-			io.KeyMap[ImGuiKey_UpArrow] = GLFW_KEY_UP;
-			io.KeyMap[ImGuiKey_DownArrow] = GLFW_KEY_DOWN;
-			io.KeyMap[ImGuiKey_PageUp] = GLFW_KEY_PAGE_UP;
-			io.KeyMap[ImGuiKey_PageDown] = GLFW_KEY_PAGE_DOWN;
-			io.KeyMap[ImGuiKey_Home] = GLFW_KEY_HOME;
-			io.KeyMap[ImGuiKey_End] = GLFW_KEY_END;
-			io.KeyMap[ImGuiKey_Insert] = GLFW_KEY_INSERT;
-			io.KeyMap[ImGuiKey_Delete] = GLFW_KEY_DELETE;
-			io.KeyMap[ImGuiKey_Backspace] = GLFW_KEY_BACKSPACE;
-			io.KeyMap[ImGuiKey_Space] = GLFW_KEY_SPACE;
-			io.KeyMap[ImGuiKey_Enter] = GLFW_KEY_ENTER;
-			io.KeyMap[ImGuiKey_Escape] = GLFW_KEY_ESCAPE;
-			io.KeyMap[ImGuiKey_A] = GLFW_KEY_A;
-			io.KeyMap[ImGuiKey_C] = GLFW_KEY_C;
-			io.KeyMap[ImGuiKey_V] = GLFW_KEY_V;
-			io.KeyMap[ImGuiKey_X] = GLFW_KEY_X;
-			io.KeyMap[ImGuiKey_Y] = GLFW_KEY_Y;
-			io.KeyMap[ImGuiKey_Z] = GLFW_KEY_Z;
+#ifdef NT_WINDOWED_APP
+	#if NT_IMGUI_D3D12_READY > 0
+			Application& app = Application::GetInstanceAsRef();
+			HWND window = static_cast<HWND>(app.GetWindow()->GetNativeWindow());
 
+			if (!ImGuiLayer::sm_ImGuiSRVHeap)
+			{
+				ImGuiLayer::sm_ImGuiSRVHeap = nitro_new Graphics::dx::D3D12DescriptorHeap_Static(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 1);
+				ImGuiLayer::sm_ImGuiSRVHeap->Init("ImGui SRV Heap", D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE);
+			}
+
+			ImGui_ImplWin32_Init(window);
+			ImGui_ImplDX12_Init(
+				Nitro::Graphics::dx::D3D12Context::g_Device, 
+				Nitro::Graphics::dx::D3D12SwapChain::GetInstance()->GetFrameBufferCount(),
+				DXGI_FORMAT_R8G8B8A8_UNORM,
+				ImGuiLayer::sm_ImGuiSRVHeap->GetHandleAtOffset(0).CpuHandle,
+				ImGuiLayer::sm_ImGuiSRVHeap->GetHandleAtOffset(0).GpuHandle);
+	#endif
+#else
+			io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;	// ImGui is not ready to do multi-viewport in d3d12
+			ImGuiStyle& style = ImGui::GetStyle();
+			if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+			{
+				style.WindowRounding = 0.0f;
+				style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+			}
+
+			Application& app = Application::GetInstanceAsRef();
+			GLFWwindow* window = static_cast<GLFWwindow*>(app.GetWindow()->GetNativeWindow());
+
+			//io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
+			//io.BackendFlags |= ImGuiBackendFlags_HasSetMouse;
+			ImGui_ImplGlfw_InitForOpenGL(window, true);
 			ImGui_ImplOpenGL3_Init("#version 410");
+#endif
 		}
 
 		void ImGuiLayer::OnDetach()
 		{
+#ifdef NT_WINDOWED_APP
+#if NT_IMGUI_D3D12_READY > 0
+			ImGui_ImplDX12_Shutdown();
+			ImGui_ImplWin32_Shutdown();
+			ImGui::DestroyContext();
+#endif
+#else
+			ImGui_ImplOpenGL3_Shutdown();
+			ImGui_ImplGlfw_Shutdown();
+			ImGui::DestroyContext();
+#endif
 		}
 
-		void ImGuiLayer::OnEvent(Event & ev)
+		void ImGuiLayer::Begin()
 		{
-			EventDispatcher dispatcher(ev);
-			dispatcher.Dispatch<MouseButtonPressedEvent>(NT_EVENT_BIND(&ImGuiLayer::OnMouseButtonPressedEvent));
-			dispatcher.Dispatch<MouseButtonReleasedEvent>(std::bind(&ImGuiLayer::OnMouseButtonReleasedEvent, this, std::placeholders::_1));
-			dispatcher.Dispatch<MouseMovedEvent>(std::bind(&ImGuiLayer::OnMouseMovedEvent, this, std::placeholders::_1));
-			dispatcher.Dispatch<MouseScrolledEvent>(std::bind(&ImGuiLayer::OnMouseScrolledEvent, this, std::placeholders::_1));
-			dispatcher.Dispatch<KeyReleasedEvent>(std::bind(&ImGuiLayer::OnKeyReleasedEvent, this, std::placeholders::_1));
-			dispatcher.Dispatch<KeyPressedEvent>(std::bind(&ImGuiLayer::OnKeyPressedEvent, this, std::placeholders::_1));
-			dispatcher.Dispatch<KeyTypedEvent>(std::bind(&ImGuiLayer::OnKeyTypedEvent, this, std::placeholders::_1));
-			dispatcher.Dispatch<WindowResizedEvent>(std::bind(&ImGuiLayer::OnWindowResizedEvent, this, std::placeholders::_1));
+#ifdef NT_WINDOWED_APP
+#if NT_IMGUI_D3D12_READY > 0
+			ImGui_ImplDX12_NewFrame();
+			ImGui_ImplWin32_NewFrame();
+			ImGui::NewFrame();
+#endif
+#else
+			ImGui_ImplOpenGL3_NewFrame();
+			ImGui_ImplGlfw_NewFrame();
+			ImGui::NewFrame();
+#endif
+		}
+		
+		void ImGuiLayer::End()
+		{
+#ifdef NT_WINDOWED_APP
+#if NT_IMGUI_D3D12_READY > 0
+			Graphics::dx::D3D12ColorBuffer& currentFrameBuffer = Graphics::dx::D3D12SwapChain::GetInstance()->GetCurrentFrameBufferRef();
+
+			Graphics::dx::D3D12CommandContext_Graphics& ctx = Graphics::dx::D3D12CommandContext_Graphics::Begin();
+			{
+				ctx.TransitionResource(currentFrameBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET);
+				ctx.SetRenderTarget(currentFrameBuffer.RTV);
+				//ctx.ClearColor(currentFrameBuffer);
+				ctx.SetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, ImGuiLayer::sm_ImGuiSRVHeap->GetNativeHeap());
+				// ----- ImGui Render -----
+				ImGui::Render();
+				ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), ctx.GetCommandList());
+				// ------------------------
+				ctx.TransitionResource(currentFrameBuffer, D3D12_RESOURCE_STATE_PRESENT);
+			}
+			ctx.Finish(true);
+#endif
+#else
+			ImGuiIO& io = ImGui::GetIO();
+			Application& app = Application::GetInstanceAsRef();
+			io.DisplaySize = ImVec2(static_cast<float>(app.GetWindow()->GetWidth()), static_cast<float>(app.GetWindow()->GetHeight()));
+
+			ImGui::Render();
+
+			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+			// ImGui is not ready to do multi-viewport in d3d12, so this part is missing in d3d12 setting
+			if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+			{
+				GLFWwindow* backup_current_context = glfwGetCurrentContext();
+				ImGui::UpdatePlatformWindows();
+				ImGui::RenderPlatformWindowsDefault();
+				glfwMakeContextCurrent(backup_current_context);
+			}
+#endif
 		}
 
-		bool ImGuiLayer::OnMouseButtonReleasedEvent(MouseButtonReleasedEvent & ev)
+		void ImGuiLayer::OnImGuiRender()
 		{
-			ImGuiIO& io = ImGui::GetIO();
-			io.MouseDown[ev.GetButton()] = false;
-			return false;
-		}
-		bool ImGuiLayer::OnMouseButtonPressedEvent(MouseButtonPressedEvent & ev)
-		{
-			ImGuiIO& io = ImGui::GetIO();
-			io.MouseDown[ev.GetButton()] = true;
-			return false;
-		}
-		bool ImGuiLayer::OnMouseMovedEvent(MouseMovedEvent & ev)
-		{
-			ImGuiIO& io = ImGui::GetIO();
-			io.MousePos = ImVec2(ev.GetPosX(), ev.GetPosY() );
-			return false;
-		}
-		bool ImGuiLayer::OnMouseScrolledEvent(MouseScrolledEvent & ev)
-		{
-			ImGuiIO& io = ImGui::GetIO();
-			io.MouseWheelH += ev.GetOffsetX();
-			io.MouseWheel  += ev.GetOffsetY();
-			return false;
-		}
-		bool ImGuiLayer::OnKeyPressedEvent(KeyPressedEvent & ev)
-		{
-			ImGuiIO& io = ImGui::GetIO();
-			io.KeysDown[ev.GetKeyCode()] = true;
-
-			io.KeyCtrl = io.KeysDown[GLFW_KEY_LEFT_CONTROL] || io.KeysDown[GLFW_KEY_RIGHT_CONTROL];
-			io.KeyAlt = io.KeysDown[GLFW_KEY_LEFT_ALT] || io.KeysDown[GLFW_KEY_RIGHT_ALT];
-			io.KeyShift = io.KeysDown[GLFW_KEY_LEFT_SHIFT] || io.KeysDown[GLFW_KEY_RIGHT_SHIFT];
-
-			return false;
-		}
-		bool ImGuiLayer::OnKeyReleasedEvent(KeyReleasedEvent & ev)
-		{
-			ImGuiIO& io = ImGui::GetIO();
-			io.KeysDown[ev.GetKeyCode()] = false;
-			return false;
-		}
-		bool ImGuiLayer::OnKeyTypedEvent(KeyTypedEvent & ev)
-		{
-			ImGuiIO& io = ImGui::GetIO();
-			unsigned int keyCode = ev.GetKeyCode();
-			if (keyCode > 0 && keyCode < 0x10000)
-				io.AddInputCharacter((unsigned short)keyCode);
-			return false;
-		}
-		bool ImGuiLayer::OnWindowResizedEvent(WindowResizedEvent & ev)
-		{
-			ImGuiIO& io = ImGui::GetIO();
-			io.DisplaySize = ImVec2(ev.GetWidth(), ev.GetHeight());
-			return false;
+#ifdef NT_WINDOWED_APP
+#if NT_IMGUI_D3D12_READY > 0
+			// TODO: Implement D3D12 first...
+			static bool show = true;
+			ImGui::ShowDemoWindow();
+#endif
+#else
+			static bool show = true;
+			ImGui::ShowDemoWindow();
+#endif
 		}
 	}
 }

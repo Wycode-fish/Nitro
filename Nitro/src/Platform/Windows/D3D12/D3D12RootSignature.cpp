@@ -13,6 +13,10 @@ namespace Nitro
 
 			void D3D12RootSignature::DestroyAll()
 			{
+				for (auto nativePSO : g_RootSignatureHashMap)
+				{
+					NT_DX_RELEASE(nativePSO.second);
+				}
 				g_RootSignatureHashMap.clear();
 			}
 
@@ -56,7 +60,7 @@ namespace Nitro
 					delete[] m_Params;
 				}
 
-				if (numOfParams > 0) m_Params = new D3D12RootParam[numOfParams];
+				if (numOfParams > 0) m_Params = nitro_new D3D12RootParam[numOfParams];
 				else m_Params = nullptr;
 				m_NumOfParams = numOfParams;
 
@@ -65,7 +69,7 @@ namespace Nitro
 					delete[] m_StaticSamplers;
 				}
 				
-				if (numOfStaticSampler > 0) m_StaticSamplers = new D3D12_STATIC_SAMPLER_DESC[m_NumOfStaticSamplers];
+				if (numOfStaticSampler > 0) m_StaticSamplers = nitro_new D3D12_STATIC_SAMPLER_DESC[numOfStaticSampler];
 				else m_StaticSamplers = nullptr;
 				m_NumOfStaticSamplers = numOfStaticSampler;
 				m_NumOfStaticSamplersInitialized = 0;

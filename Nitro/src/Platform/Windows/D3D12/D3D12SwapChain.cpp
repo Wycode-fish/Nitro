@@ -4,6 +4,7 @@
 #include "Nitro/Application.h"
 #include "Nitro/Utility.h"
 #include "D3D12CommandQueue.h"
+#include "D3D12PixelBuffer.h"
 
 namespace Nitro
 {
@@ -46,11 +47,14 @@ namespace Nitro
 
 			void D3D12SwapChain::ShutDown()
 			{
-				for (u32 i = 0; i < m_Buffers.size(); ++i)
+				for (u32 i = 0; i < this->m_Buffers.size(); ++i)
 				{
-					NT_DX_RELEASE(m_Buffers[i]);
+					if (this->m_Buffers[i])
+					{
+						delete this->m_Buffers[i];
+					}
 				}
-				NT_DX_RELEASE(m_NativeChain);
+				NT_DX_RELEASE(this->m_NativeChain);
 			}
 
 			void D3D12SwapChain::SwapBuffer()
@@ -84,6 +88,7 @@ namespace Nitro
 				std::unique_ptr<Nitro::Base::Window>& window = Nitro::Base::Application::GetInstance()->GetWindow();
 				bufferDesc.Width = window->GetWidth();
 				bufferDesc.Height = window->GetHeight();
+				// @ Valid format for display: https://docs.microsoft.com/en-us/previous-versions/windows/desktop/legacy/bb173064(v=vs.85)
 				bufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 			}
 
@@ -102,7 +107,10 @@ namespace Nitro
 				scDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 				scDesc.Windowed = true;	// @ full screen setting to be done later.
 				scDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-				
+				scDesc.SampleDesc.Count = 1;
+				scDesc.SampleDesc.Quality = 0;
+				scDesc.Flags = DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
+
 				DXGI_MODE_DESC bufferDesc = {};
 				this->FillBufferDesc(bufferDesc);
 				scDesc.BufferDesc = bufferDesc;
@@ -116,9 +124,15 @@ namespace Nitro
 			{
 				for (u32 i = 0; i < m_Buffers.size(); ++i)
 				{
-					ID3D12Resource* frameBuffer = nullptr;
-					m_NativeChain->GetBuffer(i, IID_PPV_ARGS(&frameBuffer));
-					m_Buffers[i] = frameBuffer;
+					m_Buffers[i] = nitro_new D3D12ColorBuffer();
+
+					ID3D12Resource* nativeBuffer = nullptr;
+					m_NativeChain->GetBuffer(i, IID_PPV_ARGS(&nativeBuffer));
+					std::wstring fboName(L"FB-");
+#ifdef NT_DEBUG
+					fboName += std::to_wstring(i);
+#endif
+					m_Buffers[i]->InitializeFromSwapChain(nativeBuffer, fboName);
 				}
 			}
 		}

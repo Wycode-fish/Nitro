@@ -14,7 +14,7 @@ namespace Nitro
 		public:
 			WindowsWindow2(const WindowBaseProps& props);
 		public:
-			virtual ~WindowsWindow2() {}
+			virtual ~WindowsWindow2();
 			virtual void OnUpdate() override;
 			virtual inline unsigned int GetWidth() const { return m_Data.Width; }
 			virtual unsigned int GetHeight() const { return m_Data.Height; }
@@ -27,7 +27,6 @@ namespace Nitro
 				m_Data.EventCallback = func;
 			}
 			virtual EventDelegate& GetCallbackFunc() override { return m_Data.EventCallback; }
-			virtual void ClearRenderCtx() const override;
 			virtual void SetVSync(const bool& enabled);
 			virtual bool IsVSync() const;
 		protected:

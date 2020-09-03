@@ -9,6 +9,17 @@ namespace Nitro
 {
 	namespace Base
 	{
+		/// Note that we have 'Platform' folder outside of 'Nitro' folder, 
+		/// which is a signal that, for each platform(win64, macOS, linux etc.), 
+		/// 'Nitro' engine code will be separatedly compiled againt them 1 at a time,
+		/// so there won't be multiple definitions of Window::Create function.
+#ifndef NT_WINDOWED_APP
+		Window* Window::Create(const WindowBaseProps& props)
+		{
+			return new WindowsWindow(props);
+		}
+#endif
+
 		/// This is made file static instead of WindowsWindow class static
 		/// is because we might switch to use Win32 console later with DirectX,
 		/// we want the WindowsWindow class independent from the context handle.
@@ -35,11 +46,6 @@ namespace Nitro
 		{
 			glfwPollEvents();
 			m_Context->SwapBuffers();
-		}
-
-		void WindowsWindow::ClearRenderCtx() const
-		{
-			m_Context->Clear();
 		}
 
 		void WindowsWindow::SetVSync(const bool & enabled)

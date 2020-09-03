@@ -39,34 +39,34 @@ namespace Nitro
 			int m_RepeatCount;
 		};
 
-		class NITRO_API KeyReleasedEvent : public KeyEvent
+		class NITRO_API KeyUpEvent : public KeyEvent
 		{
 		public:
-			KeyReleasedEvent(int key_code)
+			KeyUpEvent(int key_code)
 				: KeyEvent{ key_code }
 			{}
 			std::string ToString() const override
 			{
 				std::stringstream ss;
-				ss << "KeyReleasedEvent: " << m_KeyCode;
+				ss << "KeyUpEvent: " << m_KeyCode;
 				return ss.str();
 			}
-			EVENT_CLASS_TYPE(KeyReleased)
+			EVENT_CLASS_TYPE(KeyUp)
 		};
 
-		class NITRO_API KeyTypedEvent : public KeyEvent
+		class NITRO_API KeyDownEvent : public KeyEvent
 		{
 		public:
-			KeyTypedEvent(int key_code)
+			KeyDownEvent(int key_code)
 				: KeyEvent{ key_code }
 			{}
 			std::string ToString() const override
 			{
 				std::stringstream ss;
-				ss << "KeyTypedEvent: " << m_KeyCode;
+				ss << "KeyDownEvent: " << m_KeyCode;
 				return ss.str();
 			}
-			EVENT_CLASS_TYPE(KeyTyped)
+			EVENT_CLASS_TYPE(KeyDown)
 		};
 	}
 }

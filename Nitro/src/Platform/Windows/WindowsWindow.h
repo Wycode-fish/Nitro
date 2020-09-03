@@ -28,7 +28,6 @@ namespace Nitro
 			// inline void SetEventCallbackFunc(const EventCallbackFunc& func) override { m_Data.EventCallback = func; }
 			virtual inline void SetEventCallbackFunc(const EventDelegate& func) override { m_Data.EventCallback = func; }
 			virtual EventDelegate& GetCallbackFunc() override { return m_Data.EventCallback; }
-			virtual void ClearRenderCtx() const override;
 			virtual void SetVSync(const bool& enabled) override;
 			virtual bool IsVSync() const override;
 

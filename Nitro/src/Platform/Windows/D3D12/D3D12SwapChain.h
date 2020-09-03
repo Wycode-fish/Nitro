@@ -10,6 +10,7 @@ namespace Nitro
 		namespace dx
 		{
 			class D3D12CommandQueue;
+			class D3D12ColorBuffer;
 
 			class D3D12SwapChain
 			{
@@ -33,10 +34,11 @@ namespace Nitro
 				bool	IsFullScreenState();
 				void	SetFullScreenState(bool isToFullScreen);
 
-				inline ID3D12Resource*					GetCurrentFrameBuffer() { return m_Buffers[this->GetCurrentFrameBufferIndex()]; }
+				inline D3D12ColorBuffer&				GetCurrentFrameBufferRef() { return *this->m_Buffers[this->GetCurrentFrameBufferIndex()]; }
+				inline D3D12ColorBuffer*				GetCurrentFrameBuffer() { return m_Buffers[this->GetCurrentFrameBufferIndex()]; }
 				inline u32								GetCurrentFrameBufferIndex() const { IDXGISwapChain3* swap_chain = static_cast<IDXGISwapChain3*>(m_NativeChain); return swap_chain->GetCurrentBackBufferIndex(); }
 				inline u32								GetFrameBufferCount() const { return m_Buffers.size(); }
-				inline std::vector<ID3D12Resource*>&	GetFrameBuffers() { return m_Buffers; }
+				inline std::vector<D3D12ColorBuffer*>&	GetFrameBuffers() { return m_Buffers; }
 
 			private:
 				D3D12SwapChain(const size_t& numOfBuffers = NT_DX_SWAPCHAIN_FRAME_BUFFER_NUM);
@@ -49,7 +51,7 @@ namespace Nitro
 			private:
 				IDXGISwapChain* m_NativeChain;
 				// @ TODO: use nitro-wrapper of id3d12resource.
-				std::vector<ID3D12Resource*> m_Buffers;
+				std::vector<D3D12ColorBuffer*> m_Buffers;
 			};
 		}
 	}

@@ -9,27 +9,28 @@ namespace Nitro
 {
 	using namespace Base;
 
+	namespace Graphics
+	{
+		namespace dx
+		{
+			class D3D12DescriptorHeap_Static;
+		}
+	}
 	namespace Framework
 	{
 		class NITRO_API ImGuiLayer : public Layer
 		{
+#ifdef NT_WINDOWED_APP
+			static Graphics::dx::D3D12DescriptorHeap_Static* sm_ImGuiSRVHeap;
+#endif
 		public:
 			ImGuiLayer();
-			void OnUpdate() override;
-			void OnEvent(Event& ev) override;
-			void OnAttach() override;
-			void OnDetach() override;
+			virtual void OnAttach() override;
+			virtual void OnDetach() override;
+			virtual void OnImGuiRender() override;
 
-		public:
-			bool OnMouseButtonReleasedEvent(MouseButtonReleasedEvent& ev);
-			bool OnMouseButtonPressedEvent(MouseButtonPressedEvent& ev);
-			bool OnMouseMovedEvent(MouseMovedEvent& ev);
-			bool OnMouseScrolledEvent(MouseScrolledEvent& ev);
-			bool OnKeyPressedEvent(KeyPressedEvent& ev);
-			bool OnKeyReleasedEvent(KeyReleasedEvent& ev);
-			bool OnKeyTypedEvent(KeyTypedEvent& ev);
-			bool OnWindowResizedEvent(WindowResizedEvent& ev);
-
+			void Begin();
+			void End();
 		private:
 			float m_Now;
 		};

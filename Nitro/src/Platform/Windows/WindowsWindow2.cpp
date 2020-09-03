@@ -4,6 +4,9 @@
 #include "Nitro/Common/Events/KeyEvent.h"
 #include "Nitro/Common/Events/MouseEvent.h"
 #include "Nitro/Common/Events/ApplicationEvent.h"
+#include "Platform/Windows/D3D12/D3D12Context.h"
+
+extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 // @ Global Windows Event Handler
 static Nitro::Base::Event& WinMsgToNitroEvent(UINT msg, WPARAM wParam, LPARAM lParam)
@@ -31,6 +34,9 @@ static Nitro::Base::Event& WinMsgToNitroEvent(UINT msg, WPARAM wParam, LPARAM lP
 
 LRESULT CALLBACK WndProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam )
 {
+	if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
+		return true;
+
 	using namespace Nitro::Base;
 	// Event& ev = WinMsgToNitroEvent(msg, wParam, lParam);
 
@@ -50,7 +56,7 @@ LRESULT CALLBACK WndProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam )
 		case WM_MBUTTONDOWN:
 			winDelegate(MouseButtonPressedEvent(wParam));
 			break;
-		case WM_DESTROY:
+		case WM_DESTROY:	// @ TODO: Probably WM_CLOSE??
 			winDelegate(WindowCloseEvent());
 			break;
 		}
@@ -67,11 +73,12 @@ namespace Nitro
 		/// which is a signal that, for each platform(win64, macOS, linux etc.), 
 		/// 'Nitro' engine code will be separatedly compiled againt them 1 at a time,
 		/// so there won't be multiple definitions of Window::Create function.
+#ifdef NT_WINDOWED_APP
 		Window* Window::Create(const WindowBaseProps& props)
 		{
 			return new WindowsWindow2(props);
 		}
-
+#endif
 		// @ ------------------------------------------------------
 		// @				WindowsWindow2 Impl
 		// @ ------------------------------------------------------
@@ -79,12 +86,17 @@ namespace Nitro
 		WindowsWindow2::WindowsWindow2(const WindowBaseProps& props)
 			: m_Data{props}, m_Window{nullptr}
 		{
-			m_Context = nullptr;
+			m_Context = nitro_new Nitro::Graphics::dx::D3D12Context();
 			this->RegisterWindowClass();
 			this->CreateWindowInstance();
 			// show windows instance
 			ShowWindow(m_Window, true);
 			UpdateWindow(m_Window);
+		}
+
+		WindowsWindow2::~WindowsWindow2()
+		{
+			DestroyWindow(m_Window);
 		}
 
 		void WindowsWindow2::OnUpdate()
@@ -97,6 +109,7 @@ namespace Nitro
 				TranslateMessage(&msg);
 				DispatchMessage(&msg);
 			}
+			m_Context->SwapBuffers();
 		}
 
 		void WindowsWindow2::RegisterWindowClass()
@@ -133,11 +146,6 @@ namespace Nitro
 				GetModuleHandle(NULL), NULL
 			);
 			NT_ASSERT(m_Window, "Window instance creation failed.");
-		}
-
-		void WindowsWindow2::ClearRenderCtx() const
-		{
-			// @ TODO: D3D12 clear context...
 		}
 
 		void WindowsWindow2::SetVSync(const bool& enabled)

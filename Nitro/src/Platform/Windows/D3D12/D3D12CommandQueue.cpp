@@ -45,10 +45,8 @@ namespace Nitro
 			ID3D12CommandAllocator* D3D12CommandAllocatorPool::CreateNew() const
 			{
 				ID3D12CommandAllocator* res;
-				NT_ASSERT(
-					SUCCEEDED(Nitro::Graphics::dx::D3D12Context::g_Device->CreateCommandAllocator(Type, IID_PPV_ARGS(&res))),
-					"New Command Allocator Creation Failed."
-				);
+				HRESULT hr = Nitro::Graphics::dx::D3D12Context::g_Device->CreateCommandAllocator(Type, IID_PPV_ARGS(&res));
+				NT_ASSERT(SUCCEEDED(hr), "New Command Allocator Creation Failed.");
 				std::wstring debug_name = NT_STDWSTR_FORMAT("CmdAllocator-{0}", Pool.size());
 				res->SetName(debug_name.c_str());
 				return res;
@@ -117,7 +115,9 @@ namespace Nitro
 				ID3D12GraphicsCommandList* graphicsCmdLists = static_cast<ID3D12GraphicsCommandList*>(pCmdLists);
 				for (u32 i = 0; i < uNumOfLists; ++i)
 				{
-					if (FAILED(graphicsCmdLists[i].Close()))
+					HRESULT hr = graphicsCmdLists[i].Close();
+					NT_ASSERT(SUCCEEDED(hr), "Command list Close() failed.");
+					if (FAILED(hr))
 					{
 						return -1;
 					}

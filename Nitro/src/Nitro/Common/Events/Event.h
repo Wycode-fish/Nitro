@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Nitro/Core.h"
+#include "Nitro/Framework/rsg/Delegate.h"
 
 namespace Nitro
 {
@@ -11,7 +12,7 @@ namespace Nitro
 			None = 0,
 			WindowClose, WindowResized, WindowFocus, WindowLostFocus, WindowMoved,
 			AppTick, AppUpdate, AppRender,
-			KeyPressed, KeyReleased, KeyTyped,
+			KeyPressed, KeyUp, KeyDown,
 			MouseButtonPressed, MouseButtonReleased, MouseMoved, MouseScrolled
 		};
 
@@ -46,7 +47,7 @@ namespace Nitro
 		class NITRO_API EventDispatcher
 		{
 			template <typename T>
-			using EventFunc = std::function<bool(T&)>;
+			using EventFunc = RSG::ntDelegate<bool(T&)>;
 		public:
 			EventDispatcher(Event& ev)
 				: m_Event{ ev }

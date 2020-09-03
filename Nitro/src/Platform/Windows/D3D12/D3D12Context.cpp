@@ -59,8 +59,6 @@ namespace Nitro
 				{
 					D3D12Context::D3D12Initialize();
 				}
-				// * currently we have to explicitly call initcontext() in app
-				// this->Init();
 			}
 #pragma endregion
 
@@ -75,15 +73,10 @@ namespace Nitro
 			void D3D12Context::Init()
 			{
 			}
-
 			void D3D12Context::SwapBuffers()
 			{
+				D3D12SwapChain::GetInstance()->Present();
 			}
-
-			void D3D12Context::Clear() const
-			{
-			}
-
 			void D3D12Context::LogCtxSpecs()
 			{
 			}

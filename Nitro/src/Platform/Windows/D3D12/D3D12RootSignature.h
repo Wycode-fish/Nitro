@@ -110,7 +110,7 @@ namespace Nitro
 #pragma endregion
 
 			public:
-				inline const ID3D12RootSignature*	GetNativeRootSignature() const { return m_NativeRootSignature; }
+				inline ID3D12RootSignature*			GetNativeRootSignature() const { return m_NativeRootSignature; }
 				inline u32							GetNumOfParams() const { return m_NumOfParams; }
 				inline u32							GetRootDescriptorTableBitMap_Sampler() const { return m_RootDescriptorTableBitMap_StaticSampler; }
 				inline u32							GetRootDescriptorTableBitMap_NonSampler() const { return m_RootDescriptorTableBitMap_NonStaticSampler; }
