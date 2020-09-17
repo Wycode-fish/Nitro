@@ -132,6 +132,7 @@ namespace Nitro
 
 				D3D12_RESOURCE_BARRIER		m_ResourceBarriers[16];
 				u32							m_CurrentNumOfBarriersToFlush;
+
 				ID3D12DescriptorHeap*		m_CurrentDescriptorHeapsForAllTypes[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES];
 				ID3D12CommandAllocator*		m_CurrentCommandAllocator;
 				ID3D12RootSignature*		m_CurrentRootSignature_Graphics;
@@ -159,6 +160,7 @@ namespace Nitro
 				void SetViewPort(float x, float y, float w, float h, float minDepth = 0.f, float maxDepth = 1.f);
 				void SetScissor(u32 left, u32 right, u32 top, u32 bottom);
 				void SetViewPortAndScissor(u32 x, u32 y, u32 w, u32 h);
+				void SetViewPortAndScissor(const D3D12_VIEWPORT& vp, const D3D12_RECT& rect);
 				void SetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY pt);
 				
 				void SetIndexBuffer(const D3D12_INDEX_BUFFER_VIEW& iboView);

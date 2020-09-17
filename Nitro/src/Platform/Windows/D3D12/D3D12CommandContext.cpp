@@ -3,6 +3,9 @@
 #include "D3D12CommandQueue.h"
 #include "D3D12Context.h"
 
+#include "Nitro/Util/SimdOps.h"
+#include "Nitro/Util/AlignOps.h"
+
 namespace Nitro
 {
 	namespace Graphics
@@ -321,8 +324,9 @@ namespace Nitro
 
 				if (waitForCompletion)
 				{
-					targetCmdQueue->CpuWait(finishFenceVal);
+					D3D12CommandQueueManager::GetInstance()->CpuWait(finishFenceVal);
 				}
+
 				D3D12CommandContextManager::GetInstance()->FreeContext(this);
 				return finishFenceVal;
 			}
@@ -443,6 +447,12 @@ namespace Nitro
 			{
 				this->SetViewPort(x, y, w, h);
 				this->SetScissor(x, x + w, y, y + h);
+			}
+
+			void D3D12CommandContext_Graphics::SetViewPortAndScissor(const D3D12_VIEWPORT& vp, const D3D12_RECT& rect)
+			{
+				this->m_NativeCommandList->RSSetViewports(1, &vp);
+				this->m_NativeCommandList->RSSetScissorRects(1, &rect);
 			}
 
 			void D3D12CommandContext_Graphics::SetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY pt)

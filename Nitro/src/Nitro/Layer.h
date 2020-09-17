@@ -1,10 +1,11 @@
 #pragma once
-#include "Nitro/Common/Events/Event.h"
 
 namespace Nitro
 {
 	namespace Base
 	{
+		class Event;
+
 		class NITRO_API Layer
 		{
 		public:

@@ -87,8 +87,8 @@ namespace Nitro
 				// @ Trick for cmd queue's fence value:
 				// @	- Use highest 8-bit for type storage
 				// @	- Use lower 56-bit for actual fance value storage.
-				m_LastFenceCompletedValue = ((u64)m_CommandQueueType) << 56;
-				m_NextFenceCompletedValue = m_LastFenceCompletedValue + 1;
+				this->m_LastFenceCompletedValue = ((u64)m_CommandQueueType) << 56;
+				this->m_NextFenceCompletedValue = m_LastFenceCompletedValue + 1;
 
 				D3D12_COMMAND_QUEUE_DESC cmdQueueDesc = {};
 				cmdQueueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
@@ -99,6 +99,7 @@ namespace Nitro
 					SUCCEEDED(Nitro::Graphics::dx::D3D12Context::g_Device->CreateCommandQueue(&cmdQueueDesc, IID_PPV_ARGS(&m_CommandQueue))),
 					"Command queue creation failed."
 				);
+				this->m_CommandQueue->SetName(L"D3D12CommandQueue::m_CommandQueue");
 
 				NT_ASSERT(
 					SUCCEEDED(Nitro::Graphics::dx::D3D12Context::g_Device->CreateFence(m_LastFenceCompletedValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_Fence))),

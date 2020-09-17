@@ -1,9 +1,6 @@
 #pragma once
 
 #include "Nitro/Layer.h"
-#include "Nitro/Common/Events/KeyEvent.h"
-#include "Nitro/Common/Events/MouseEvent.h"
-#include "Nitro/Common/Events/ApplicationEvent.h"
 
 namespace Nitro
 {

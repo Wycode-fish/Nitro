@@ -1,6 +1,6 @@
 #pragma once
 #include "Core.h"
-#include "Rttr.h"
+#include "Nitro/Rttr/RttrBase.h"
 #include "glm/glm.hpp"
 
 namespace Nitro

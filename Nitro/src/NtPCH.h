@@ -23,19 +23,41 @@
 #endif
 
 #pragma region ===================== Base =====================
+#include "Nitro/Core.h"
 #include "Nitro/Log.h"
 #include "Nitro/Layer.h"
 #include "Nitro/Common/Configs/KeyCode.h"
 #include "Nitro/Common/Configs/MouseButtonCode.h"
-#include "Nitro/Memory.h"
-#include "Nitro/Utility.h"
+#include "Nitro/OperatorNew.h"
 #pragma endregion
 
+
 #pragma region ===================== RSG =====================
-#include "Nitro/Framework/rsg/Delegate.h"
 #include "Nitro/Framework/rsg/String.h"
-#include "Nitro/Framework/rsg/Memory.h"
 #include "Nitro/Framework/rsg/Queue.h"
+#pragma endregion
+
+
+#pragma region ===================== Debug =====================
+#include "Nitro/Rttr/RttrBase.h"
+#pragma endregion
+
+#pragma region ===================== Debug =====================
+#ifdef NT_DEBUG
+#include "Nitro/Debug/LogMacro.h"
+#include "Nitro/Debug/Trap.h"
+#endif
+#pragma endregion
+
+#pragma region ===================== Utility =====================
+#include "Nitro/Util/Delegate.h"
+#include "Nitro/Util/AlgorithmOps.h"
+#include "Nitro/Util/AlignOps.h"
+#include "Nitro/Util/BaseOps.h"
+#include "Nitro/Util/FileOps.h"
+#include "Nitro/Util/HashOps.h"
+#include "Nitro/Util/SimdOps.h"
+#include "Nitro/Util/StringOps.h"
 #pragma endregion
 
 #pragma region ===================== Renderer =====================

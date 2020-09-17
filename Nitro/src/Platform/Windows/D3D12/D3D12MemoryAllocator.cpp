@@ -3,6 +3,8 @@
 #include "D3D12CommandQueue.h"
 #include "D3D12Context.h"
 
+#include "Nitro/Util/AlignOps.h"
+
 namespace Nitro
 {
 	namespace Graphics
@@ -168,11 +170,11 @@ namespace Nitro
 					return this->AllocateLargePage(alignedSize);
 				}
 
-				m_CurrentOffset = Util::alignUp(m_CurrentOffset, alignmentMask);
+				m_CurrentOffset = Util::alignUp(m_CurrentOffset, alignment);
 				if (m_CurrentOffset + alignedSize > m_PageSize)
 				{
 					NT_ASSERT(m_CurrentPage != nullptr, "Current page hasn't been initialized yet.");
-					m_RetiredPages.emplace_back(m_CurrentPage);
+					m_RetiredPages.push_back(m_CurrentPage);
 					m_CurrentPage = nullptr;
 				}
 				if (m_CurrentPage == nullptr)
@@ -206,7 +208,7 @@ namespace Nitro
 			GpuMemoryBlock GpuMemoryAllocator_Linear::AllocateLargePage(const size_t& sizeInBytes)
 			{
 				GpuMemoryPage* dynamicPage = GpuMemoryAllocator_Linear::g_GpuMemoryPageManager[this->m_PageType].CreateNewPage(sizeInBytes);
-				this->m_ExistedLargePages.emplace_back(dynamicPage);
+				this->m_ExistedLargePages.push_back(dynamicPage);
 
 				GpuMemoryBlock memblk(*dynamicPage, 0, sizeInBytes);
 				memblk.CpuAddress = dynamicPage->CpuAddress;

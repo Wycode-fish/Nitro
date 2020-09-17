@@ -4,6 +4,8 @@
 #include "D3D12SwapChain.h"
 #include "D3D12Context.h"
 
+#include "Nitro/Util/HashOps.h"
+
 namespace Nitro
 {
 	namespace Graphics

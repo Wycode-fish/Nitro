@@ -1,8 +1,7 @@
 #pragma once
 
-#include "spdlog/spdlog.h"
-#include "Nitro/Core.h"
 #include "spdlog/fmt/ostr.h"
+#include "spdlog/spdlog.h"
 
 namespace Nitro
 {

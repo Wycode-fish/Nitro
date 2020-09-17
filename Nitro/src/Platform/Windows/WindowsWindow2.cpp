@@ -8,29 +8,6 @@
 
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-// @ Global Windows Event Handler
-static Nitro::Base::Event& WinMsgToNitroEvent(UINT msg, WPARAM wParam, LPARAM lParam)
-{
-	using namespace Nitro::Base;
-	// @ TODO: Use Input class implementation to handle
-	switch (msg)
-	{
-	case WM_KEYDOWN:
-		return KeyDownEvent(wParam);
-	case WM_KEYUP:
-		return KeyUpEvent(wParam);
-	case WM_MBUTTONDOWN:
-		return MouseButtonPressedEvent(wParam);
-	case WM_DESTROY:
-		return WindowCloseEvent();
-	case WM_CANCELMODE:
-		return AppUpdateEvent();
-	default:
-		return AppTickEvent();
-	}
-	NT_ASSERT(false, "Windows event-message code {0} hasn't been handled by Nitro yet.", msg);
-	return WindowCloseEvent();
-}
 
 LRESULT CALLBACK WndProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam )
 {
@@ -49,16 +26,19 @@ LRESULT CALLBACK WndProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam )
 		{
 		case WM_KEYDOWN:
 			winDelegate(KeyDownEvent(wParam));
-			break;
+			return 0;
 		case WM_KEYUP:
 			winDelegate(KeyUpEvent(wParam));
-			break;
+			return 0;
 		case WM_MBUTTONDOWN:
 			winDelegate(MouseButtonPressedEvent(wParam));
-			break;
-		case WM_DESTROY:	// @ TODO: Probably WM_CLOSE??
+			return 0;
+		case WM_CLOSE:	// @ TODO: Probably WM_CLOSE??
 			winDelegate(WindowCloseEvent());
-			break;
+			return 0;
+		case WM_DESTROY:
+			::PostQuitMessage(0);
+			return 0;
 		}
 	}
 	// @ -----------------------
@@ -101,6 +81,8 @@ namespace Nitro
 
 		void WindowsWindow2::OnUpdate()
 		{
+			m_Context->SwapBuffers();
+
 			static MSG msg;
 			memset(&msg, 0, sizeof(MSG));
 
@@ -109,7 +91,6 @@ namespace Nitro
 				TranslateMessage(&msg);
 				DispatchMessage(&msg);
 			}
-			m_Context->SwapBuffers();
 		}
 
 		void WindowsWindow2::RegisterWindowClass()

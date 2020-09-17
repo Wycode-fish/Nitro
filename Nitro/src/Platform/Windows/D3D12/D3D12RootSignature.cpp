@@ -3,6 +3,8 @@
 #include "D3D12Context.h"
 #include "Nitro/Application.h"
 
+#include "Nitro/Util/HashOps.h"
+
 namespace Nitro
 {
 	namespace Graphics

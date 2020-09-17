@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Nitro/Core.h"
-#include "Nitro/Framework/rsg/Delegate.h"
+#include "Nitro/Util/Delegate.h"
 
 namespace Nitro
 {
@@ -47,7 +47,7 @@ namespace Nitro
 		class NITRO_API EventDispatcher
 		{
 			template <typename T>
-			using EventFunc = RSG::ntDelegate<bool(T&)>;
+			using EventFunc = Util::ntDelegate<bool(T&)>;
 		public:
 			EventDispatcher(Event& ev)
 				: m_Event{ ev }

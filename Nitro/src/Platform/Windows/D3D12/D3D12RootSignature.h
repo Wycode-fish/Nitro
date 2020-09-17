@@ -1,6 +1,5 @@
 #pragma once
 #include <d3d12.h>
-#include "Nitro/Utility.h"
 
 namespace Nitro
 {
@@ -59,7 +58,14 @@ namespace Nitro
 					// @ Initialize at least 1 range inside the RootDescirptorTable.
 					this->SetRangeAtIndexInDescriptorTable(0, initRangeType, initRangeSizeInNum, initBaseShaderRegistry, 0);
 				}
-
+				inline void Init_AsDescriptorRange(
+					D3D12_DESCRIPTOR_RANGE_TYPE rangeType, 
+					unsigned int baseShaderRegistry, 
+					unsigned int descriptorCount,
+					D3D12_SHADER_VISIBILITY visibility = D3D12_SHADER_VISIBILITY_ALL)
+				{
+					Init_AsDescriptorTable(1, rangeType, descriptorCount, baseShaderRegistry, visibility);
+				}
 				// @ Every range in a talbe can have its own DescriptorRangeType.
 				inline void SetRangeAtIndexInDescriptorTable(
 					unsigned int				rangeIdx,
@@ -115,7 +121,7 @@ namespace Nitro
 				inline u32							GetRootDescriptorTableBitMap_Sampler() const { return m_RootDescriptorTableBitMap_StaticSampler; }
 				inline u32							GetRootDescriptorTableBitMap_NonSampler() const { return m_RootDescriptorTableBitMap_NonStaticSampler; }
 				inline u32							GetRootDescriptorTableSizeAtIdx(u32 idx) const { return m_ArrayRootDescriptorTableSizesInNum[idx]; }
-
+				inline D3D12RootParam&				GetParamRef(u32 idx) { return m_Params[idx]; }
 			private:
 				inline bool	IsCurrentNativeParamOfTypeDescriptorTable(D3D12_ROOT_PARAMETER_TYPE paramType) const
 				{

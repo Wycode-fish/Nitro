@@ -77,7 +77,10 @@ namespace Nitro
 			protected:
 				D3D12GpuBuffer();
 				D3D12_RESOURCE_DESC DescribeBuffer() const;
-				void InitializeDerivedViews(TypeGpuBuffer type, DXGI_FORMAT typedBufferUseOnly = DXGI_FORMAT_UNKNOWN);
+				void InitializeDerivedViews(
+					TypeGpuBuffer type, 
+					/*optional param*/DXGI_FORMAT typedBufferUseOnly = DXGI_FORMAT_UNKNOWN, 
+					/*optional param*/ID3D12Resource* counterRes = nullptr);
 			};
 		}
 	}

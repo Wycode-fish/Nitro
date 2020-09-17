@@ -3,6 +3,8 @@
 class IDXGISwapChain;
 class ID3D12Resource;
 
+#define NT_DX_SWAPCHAIN_FRAME_BUFFER_NUM	3
+
 namespace Nitro
 {
 	namespace Graphics
@@ -44,7 +46,6 @@ namespace Nitro
 				D3D12SwapChain(const size_t& numOfBuffers = NT_DX_SWAPCHAIN_FRAME_BUFFER_NUM);
 
 				void FillBufferDesc(DXGI_MODE_DESC& bufferDesc) const;
-				void FillSampleDesc(DXGI_SAMPLE_DESC& sampleDesc) const;
 				void FillSwapChainDesc(DXGI_SWAP_CHAIN_DESC& scDesc) const;
 
 				void RetrieveBuffers();

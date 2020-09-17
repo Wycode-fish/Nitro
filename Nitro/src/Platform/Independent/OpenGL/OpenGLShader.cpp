@@ -3,6 +3,9 @@
 #include "glad/glad.h"
 #include "glm/gtc/type_ptr.hpp"
 
+#include "Nitro/Util/FileOps.h"
+#include "Nitro/Util/HashOps.h"
+
 namespace Nitro
 {
 	namespace Graphics

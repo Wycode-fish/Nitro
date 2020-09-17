@@ -3,9 +3,9 @@
 #include "NtPCH.h"
 #include "Nitro/Core.h"
 #include "Nitro/Common/Events/Event.h"
-#include "Nitro/Framework/rsg/Delegate.h"
-
 #include "Nitro/Render/IRenderingContext.h"
+
+#include "Nitro/Util/Delegate.h"
 
 namespace Nitro
 {
@@ -35,7 +35,7 @@ namespace Nitro
 		{
 		public:
 			// using EventCallbackFunc = std::function<void(Event&)>;
-			using EventDelegate = RSG::ntDelegate<void(Event&)>;
+			using EventDelegate = Util::ntDelegate<void(Event&)>;
 			virtual ~Window() {}
 			virtual void OnUpdate() = 0;
 			virtual unsigned int GetWidth() const = 0;

@@ -43,10 +43,8 @@ namespace Nitro
 			// @ -------------------------------------------------------
 			struct D3D12StructuredBuffer : public D3D12GpuBuffer
 			{
-			protected:
 				D3D12ByteAddressedBuffer m_CounterBuffer;
 
-			public:
 				virtual void Destroy() override;
 				virtual void InitializeDerivedViews() override;
 				const D3D12_CPU_DESCRIPTOR_HANDLE& GetCounterSRV(D3D12CommandContext& ctx);

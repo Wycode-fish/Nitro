@@ -2,7 +2,6 @@
 #include "D3D12SwapChain.h"
 #include "D3D12Context.h"
 #include "Nitro/Application.h"
-#include "Nitro/Utility.h"
 #include "D3D12CommandQueue.h"
 #include "D3D12PixelBuffer.h"
 
@@ -23,7 +22,8 @@ namespace Nitro
 			}
 
 			D3D12SwapChain::D3D12SwapChain(const size_t& numOfBuffers)
-				: m_NativeChain(nullptr), m_Buffers(numOfBuffers, nullptr)
+				: m_NativeChain(nullptr)
+				, m_Buffers(numOfBuffers, nullptr)
 			{
 				Init();
 			}
@@ -89,13 +89,7 @@ namespace Nitro
 				bufferDesc.Width = window->GetWidth();
 				bufferDesc.Height = window->GetHeight();
 				// @ Valid format for display: https://docs.microsoft.com/en-us/previous-versions/windows/desktop/legacy/bb173064(v=vs.85)
-				bufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-			}
-
-			void D3D12SwapChain::FillSampleDesc(DXGI_SAMPLE_DESC& sampleDesc) const
-			{
-				// @ TODO: needs to be able to set sample count.
-				sampleDesc.Count = 1;
+				bufferDesc.Format = DXGI_FORMAT_R10G10B10A2_UNORM;
 			}
 
 			void D3D12SwapChain::FillSwapChainDesc(DXGI_SWAP_CHAIN_DESC& scDesc) const
@@ -106,18 +100,14 @@ namespace Nitro
 				scDesc.OutputWindow = (HWND)window->GetNativeWindow();
 				scDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 				scDesc.Windowed = true;	// @ full screen setting to be done later.
-				scDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+				scDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
 				scDesc.SampleDesc.Count = 1;
 				scDesc.SampleDesc.Quality = 0;
-				scDesc.Flags = DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
+				scDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
 				DXGI_MODE_DESC bufferDesc = {};
 				this->FillBufferDesc(bufferDesc);
 				scDesc.BufferDesc = bufferDesc;
-
-				DXGI_SAMPLE_DESC sampleDesc = {};
-				this->FillSampleDesc(sampleDesc);
-				scDesc.SampleDesc = sampleDesc;
 			}
 
 			void D3D12SwapChain::RetrieveBuffers()

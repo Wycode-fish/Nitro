@@ -1,6 +1,7 @@
 #pragma once
 
 #define NT_TEMPLATE_CONDITION(cond) typename Nitro::EnableIf<cond, u32>::type* = nullptr
+
 namespace Nitro
 {
 	/// a little RTTR here
@@ -59,7 +60,7 @@ namespace Nitro
 	_MinimumTypeInfo TypeName::sm_TypeInfo = {nullptr RTTI_TYPENAME(, #TypeName)};\
 	_MinimumTypeInfo* TypeName::GetStaticTypeInfo() { return &TypeName::sm_TypeInfo; }\
 	_MinimumTypeInfo* TypeName::GetDynamicTypeInfo() const { return GetStaticTypeInfo(); }
-	
+
 #define DECLARE_MINIMAL_RTTI(BaseTypeName, TypeName) \
 	static _MinimumTypeInfo sm_TypeInfo;\
 	static _MinimumTypeInfo* GetStaticTypeInfo();\

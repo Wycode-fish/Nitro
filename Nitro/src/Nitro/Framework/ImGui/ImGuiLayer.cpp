@@ -58,9 +58,9 @@ namespace Nitro
 
 			ImGui_ImplWin32_Init(window);
 			ImGui_ImplDX12_Init(
-				Nitro::Graphics::dx::D3D12Context::g_Device, 
-				Nitro::Graphics::dx::D3D12SwapChain::GetInstance()->GetFrameBufferCount(),
-				DXGI_FORMAT_R8G8B8A8_UNORM,
+				Graphics::dx::D3D12Context::g_Device, 
+				Graphics::dx::D3D12SwapChain::GetInstance()->GetFrameBufferCount(),
+				DXGI_FORMAT_R10G10B10A2_UNORM,
 				ImGuiLayer::sm_ImGuiSRVHeap->GetHandleAtOffset(0).CpuHandle,
 				ImGuiLayer::sm_ImGuiSRVHeap->GetHandleAtOffset(0).GpuHandle);
 	#endif
@@ -105,6 +105,7 @@ namespace Nitro
 			ImGui_ImplDX12_NewFrame();
 			ImGui_ImplWin32_NewFrame();
 			ImGui::NewFrame();
+			Graphics::dx::D3D12CommandContext_Graphics& ctx = Graphics::dx::D3D12CommandContext_Graphics::Begin();
 #endif
 #else
 			ImGui_ImplOpenGL3_NewFrame();

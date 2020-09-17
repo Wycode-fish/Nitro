@@ -23,7 +23,8 @@ namespace Nitro
 
 			void D3D12StructuredBuffer::InitializeDerivedViews()
 			{
-				D3D12GpuBuffer::InitializeDerivedViews(TypeGpuBuffer::Structured);
+				this->m_CounterBuffer.Initialize(1, 4);
+				D3D12GpuBuffer::InitializeDerivedViews(TypeGpuBuffer::Structured, DXGI_FORMAT_R32_TYPELESS, this->m_CounterBuffer.pNativeResource);
 			}
 
 			const D3D12_CPU_DESCRIPTOR_HANDLE& D3D12StructuredBuffer::GetCounterSRV(D3D12CommandContext& ctx)

@@ -4,6 +4,8 @@
 #include "D3D12CommandContext.h"
 #include "D3D12DescriptorHeap.h"
 
+#include "Nitro/Util/AlignOps.h"
+
 namespace Nitro
 {
     namespace Graphics
@@ -107,7 +109,7 @@ namespace Nitro
 
             D3D12_INDEX_BUFFER_VIEW D3D12GpuBuffer::IndexBufferView(const size_t& offsetInBytes, u32 sizeInBytes, bool is32Bit) const
             {
-                D3D12_INDEX_BUFFER_VIEW iboView = {};
+                D3D12_INDEX_BUFFER_VIEW iboView = {}; 
                 iboView.BufferLocation = this->GpuAddress + offsetInBytes;
                 iboView.SizeInBytes = sizeInBytes;
                 iboView.Format = is32Bit ? DXGI_FORMAT_R32_UINT : DXGI_FORMAT_R16_UINT;
@@ -124,7 +126,7 @@ namespace Nitro
             {
                 NT_ASSERT((size_t)(offset + size) <= this->BufferSize, "Trying to create cbo view exceeds size limit of buffer.");
                 
-                size = Util::alignUp(size, 16);
+                size = Util::alignUp(size, DX_DATA_ALIGN_DEFAULT);
                 
                 D3D12_CONSTANT_BUFFER_VIEW_DESC cboViewDesc = {};
                 cboViewDesc.BufferLocation = this->GpuAddress + offset;
@@ -135,7 +137,10 @@ namespace Nitro
                 return hCbo;
             }
 
-            void D3D12GpuBuffer::InitializeDerivedViews(TypeGpuBuffer type, /*optional param*/DXGI_FORMAT typedBufferUseOnly)
+            void D3D12GpuBuffer::InitializeDerivedViews(
+                TypeGpuBuffer type, 
+                /*optional param*/DXGI_FORMAT typedBufferUseOnly,
+                /*optional param*/ID3D12Resource* counterRes)
             {                
                 D3D12_SHADER_RESOURCE_VIEW_DESC srv_desc    = {};
                 srv_desc.ViewDimension                      = D3D12_SRV_DIMENSION_BUFFER;
@@ -176,7 +181,7 @@ namespace Nitro
                 {
                     this->UAV = DescriptorAllocator_CpuViewOnly::AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
                 }
-                D3D12Context::g_Device->CreateUnorderedAccessView(this->pNativeResource, nullptr, &uav_desc, this->UAV);
+                D3D12Context::g_Device->CreateUnorderedAccessView(this->pNativeResource, counterRes, &uav_desc, this->UAV);
             }
 
             D3D12GpuBuffer::D3D12GpuBuffer()
@@ -202,7 +207,7 @@ namespace Nitro
                 desc.MipLevels = 1;
                 desc.SampleDesc.Count = 1;
                 desc.SampleDesc.Quality = 0;
-                desc.Width = this->BufferSize;
+                desc.Width = (u64)this->BufferSize;
                 return desc;
             }
 
