@@ -27,17 +27,16 @@ workspace "Nitro"
 outputdir = "%{cfg.buildcfg}_%{cfg.system}_%{cfg.architecture}/"
 
 -- make a struct to include directories relative to sln folder
-IncludeDir = {}
-IncludeDir["GLFW"] = "Nitro/vendor/GLFW/include"
-IncludeDir["RapidXML"] = "Nitro/vendor/rapidxml"	-- V1.13
-IncludeDir["GLAD"] = "Nitro/vendor/GLAD/include"	-- Core/GL:V4.6
-IncludeDir["ImGui"] = "Nitro/vendor/imgui"
-IncludeDir["glm"] = "Nitro/vendor/glm"
-IncludeDir["fmtlib"] = "Nitro/vendor/fmtlib/include"
-
+IncludeDir 				= {}
+IncludeDir["GLFW"] 		= "Nitro/vendor/GLFW/include"
+IncludeDir["RapidXML"] 	= "Nitro/vendor/rapidxml"	-- V1.13
+IncludeDir["GLAD"] 		= "Nitro/vendor/GLAD/include"	-- Core/GL:V4.6
+IncludeDir["ImGui"] 	= "Nitro/vendor/imgui"
+IncludeDir["fmtlib"] 	= "Nitro/vendor/fmtlib/include"
+IncludeDir["glm"] 		= "Nitro/vendor/glm"
 -- include non-vendor projects
 IncludeDir["Nitro_Physics"] = "Nitro.Physics/include"
-
+IncludeDir["Nitro_Math"] = "Nitro.Math/src"
 -- include compiled shaders into includedirs
 IncludeDir["outputDir"] = "bin/"..outputdir.."%{prj.name}"
 
@@ -46,8 +45,8 @@ include "Nitro/vendor/GLFW"
 include "Nitro/vendor/GLAD"
 include "Nitro/vendor/imgui"
 include "Nitro/vendor/rapidxml"
-
 include "Nitro.Physics"
+include "Nitro.Math"
 
 project "Nitro"
 	location "Nitro"
@@ -67,6 +66,7 @@ project "Nitro"
 	{
 		"%{prj.name}/src/**.h",
 		"%{prj.name}/src/**.cpp",
+		------ below should be removed as it's in other project  ------
 		"%{prj.name}/vendor/glm/glm/**.hpp",
 		"%{prj.name}/vendor/glm/glm/**.inl",
 	}
@@ -94,11 +94,12 @@ project "Nitro"
 		"%{IncludeDir.RapidXML}",
 		"%{IncludeDir.GLAD}",
 		"%{IncludeDir.ImGui}",
-		"%{IncludeDir.glm}",
 		"%{IncludeDir.fmtlib}",
 		"%{IncludeDir.outputDir}",
+		"%{IncludeDir.glm}",
 		-- include non-vendor projects
 		"%{IncludeDir.Nitro_Physics}",
+		"%{IncludeDir.Nitro_Math}",
 	}
 
 	defines
@@ -127,6 +128,7 @@ project "Nitro"
 		files 
 		{
 			"%{prj.name}/src/**.hlsl",
+			"%{prj.name}/src/**.hlsli"
 		}
 
 	filter "files:**.hlsl"
@@ -184,6 +186,7 @@ project "Nitro.Sandbox"
 		"%{IncludeDir.glm}",
 		-- include non-vendor projects
 		"%{IncludeDir.Nitro_Physics}",
+		"%{IncludeDir.Nitro_Math}",
 	}
 
 	links
@@ -203,14 +206,7 @@ project "Nitro.Sandbox"
 		kind "ConsoleApp"
 		files 
 		{
-			"%{prj.name}/src/**.hlsl",
-		}
-
-	filter {"system:windows", "options:app-type=console"}
-		defines "NT_WINDOWED_APP"
-		files 
-		{
-			"%{prj.name}/assets/shaders/gl/**.glsl"
+			"%{prj.name}/assets/shaders/gl/**.glsl",
 		}
 
 	filter {"system:windows", "options:app-type=windowed"}
